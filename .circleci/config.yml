@@ -8,7 +8,7 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/php:7.0-browsers
-      - image: circleci/php:5.6-browsers
+
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - checkout
-
+      - rm /opt/circleci/php/$(phpenv global)/etc/conf.d/xdebug.ini
       # Download and cache dependencies
       - restore_cache:
           keys:
