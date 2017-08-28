@@ -24,7 +24,6 @@ jobs:
           name: Install PHP extensions
           command: docker-php-ext-install pdo
       - checkout
-      - run: rm /opt/circleci/php/$(phpenv global)/etc/conf.d/xdebug.ini
       - run: composer install --no-interaction
       # run tests!
       - run: vendor/bin/phpunit
