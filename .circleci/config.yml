@@ -8,7 +8,6 @@ jobs:
     docker:
       # specify the version you desire here
       - image: redis:3.0.7
-      - image: circleci/php:7.0-browsers
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -21,7 +20,7 @@ jobs:
       - restore_cache:
           key: cakephp3-circleci-testci-{{ .Branch }}
       - checkout
-      - run: sudo yum install php5-intl
+      - run: sudo apt-get install php7.0-intl
       - run: sudo service apache2 restart
       - run: composer install --no-interaction
       - save_cache:
