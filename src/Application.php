@@ -44,8 +44,8 @@ class Application extends BaseApplication
             // Handle plugin/theme assets like CakePHP normally does.
             ->add(AssetMiddleware::class)
 
-            // Add routing middleware.
-            ->add(new RoutingMiddleware($this));
+            // Apply routing
+            ->add(RoutingMiddleware::class);
 
         return $middlewareQueue;
     }
