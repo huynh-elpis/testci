@@ -1,22 +1,21 @@
-# PHP CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-php/ for more details
-#
-version: 2
-jobs:
-  build:
-    docker:
-      # specify the version you desire here
-    - image: circleci/php:7.0-browsers
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      #- image: circleci/mysql:9.4
+machine:
+  php:
+    version: 5.6.22
+  services:
+    - mysql
 
-    working_directory: ~/repo
+database:
+  pre:
+    - echo "[mysqld]" | sudo tee -a /etc/mysql/my.cnf
+    - echo 'sql_mode=NO_ENGINE_SUBSTITUTION' | sudo tee -a /etc/mysql/my.cnf
+    - sudo service mysql restart
 
-    steps:
-      - checkout
+dependencies:
+  pre:
+    - rm /opt/circleci/php/$(phpenv global)/etc/conf.d/xdebug.ini
 
-      # run tests!
-      - run: vendor/bin/phpunit
+test:
+  override:
+    - vendor/bin/phpunit
+    - vendor/bin/phpcs --standard=vendor/cakephp/cakephp-codesniffer/CakePHP/ruleset.xml src/ -n
+    - vendor/bin/phpcs --standard=vendor/cakephp/cakephp-codesniffer/CakePHP/ruleset.xml tests/TestCase/Controller/ -n
