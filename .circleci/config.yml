@@ -19,4 +19,4 @@ jobs:
       - checkout
 
       # run tests!
-      - run: phpunit
+      - run: vendor/bin/phpunit
