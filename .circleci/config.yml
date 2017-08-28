@@ -17,21 +17,14 @@ jobs:
     working_directory: ~/repo
 
     steps:
-      - checkout
-      - rm /opt/circleci/php/$(phpenv global)/etc/conf.d/xdebug.ini
-      # Download and cache dependencies
       - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "composer.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
-      - run: composer install -n --prefer-dist
-
+          key: cakephp3-circleci-testci-{{ .Branch }}
+      - checkout
+      - run: composer install --dev --no-interaction
       - save_cache:
+          key: cakephp3-circleci-testci-{{ .Branch }}
           paths:
-            - ./vendor
-          key: v1-dependencies-{{ checksum "composer.json" }}
+            - "/home/ubuntu/.composer/cache"
 
       # run tests!
       - run: phpunit
