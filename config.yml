@@ -7,12 +7,13 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-    - image: circleci/php:5.6
+    - image: php:7.1-apache
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
       #- image: circleci/mysql:9.4
-
+        environment:
+          APP_ENV: test
     working_directory: ~/huynh-test
 
     steps:
