@@ -17,8 +17,6 @@ jobs:
 
     steps:
       - checkout
-      - run: sudo apt-get install php7.0-intl
-      - run: sudo service apache2 restart
       - restore_cache:
           keys:
             - composer-v1-{{ checksum "composer.json" }}
