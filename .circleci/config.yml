@@ -14,6 +14,9 @@ jobs:
           MYSQL_ROOT_PASSWORD: password
     working_directory: /var/www/html
     steps:
+      - run:
+          name: chmod permissions
+          command: sudo chown -R /var/www
       - run: apt-get update && apt-get -y install git unzip zlib1g-dev libicu-dev
       - checkout
       - run: docker-php-ext-install pdo pdo_mysql zip intl
