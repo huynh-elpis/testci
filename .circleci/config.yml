@@ -84,7 +84,8 @@ jobs:
           key: cakephp3-circleci-testci-npm-cache-{{ .Branch }}
           paths:
             - "/home/ubuntu/.npm-cache"
-      - run: - node_modules/.bin/eslint webroot/js/
+      - run: node_modules/.bin/eslint webroot/js/
+      
 workflows:
   version: 2
   build-all:
