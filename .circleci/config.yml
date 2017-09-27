@@ -18,7 +18,7 @@ jobs:
           key: cakephp3-circleci-testci-{{ .Branch }}
       - run:
           name: chmod permissions
-          command: sudo chmod -R circleci:circleci /var/www/html
+          command: sudo chmod circleci -R /var/www
       - checkout
       - run: composer install --dev --no-interaction
       - save_cache:
@@ -46,7 +46,7 @@ jobs:
           key: cakephp3-circleci-testci-{{ .Branch }}
       - run:
           name: chmod permissions
-          command: sudo chmod -R circleci:circleci /var/www/html
+          command: sudo chmod circleci -R /var/www
       - checkout
       - run: composer install --dev --no-interaction
       - save_cache:
