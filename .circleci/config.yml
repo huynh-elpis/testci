@@ -2,7 +2,7 @@ version: 2
 jobs:
   php_test:
     docker:
-      - image: circleci/php:7.1-apache-browsers
+      - image: php:7.1-apache
         environment:
           DEBUG: true
           DATABASE_URL: "mysql://root:password@127.0.0.1/testci?encoding=utf8mb4&timezone=UTC&cacheMetadata=true"
@@ -14,13 +14,23 @@ jobs:
           MYSQL_ROOT_PASSWORD: password
     working_directory: /var/www/html
     steps:
+      - run: apt-get update && apt-get -y install git unzip zlib1g-dev libicu-dev
+      #- run:
+      #    name: chmod permissions
+      #    command: sudo chown -R /var/www
+      - checkout
+      - run: docker-php-ext-install pdo pdo_mysql zip intl
+      - run:
+          name: Install Composer
+          command: |
+            php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
+            php -r "copy('https://composer.github.io/installer.sig', 'composer-setup.sig');" && \
+            php -r "if (hash_file('SHA384', 'composer-setup.php') === trim(file_get_contents('composer-setup.sig'))) { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" && \
+            php composer-setup.php && \
+            php -r "unlink('composer-setup.php');"
       - restore_cache:
           key: cakephp3-circleci-testci-{{ .Branch }}
-      - run:
-          name: chmod permissions
-          command: sudo chown -R circleci:circleci /var/www
-      - checkout
-      - run: composer install --dev --no-interaction
+      - run: php composer.phar install --dev --no-interaction
       - save_cache:
           key: cakephp3-circleci-testci-{{ .Branch }}
           paths:
@@ -37,16 +47,16 @@ jobs:
       - run: vendor/bin/phpunit
   php_code_sniffer:
     docker:
-      - image: circleci/php:7.1-apache-browsers
+      - image: php:7.1-apache
         environment:
           DEBUG: true
     working_directory: /var/www/html
     steps:
       - restore_cache:
           key: cakephp3-circleci-testci-{{ .Branch }}
-      - run:
-          name: chown permissions
-          command: sudo chown -R circleci:circleci /var/www
+      #- run:
+      #    name: chown permissions
+      #    command: sudo chown -R circleci:circleci /var/www
       - checkout
       - run: composer install --dev --no-interaction
       - save_cache:
@@ -57,10 +67,28 @@ jobs:
           name: php code sniffer
           command: vendor/bin/phpcs --standard=vendor/cakephp/cakephp-codesniffer/CakePHP/ruleset.xml src/ tests/ -n
       
-
+  eslint_javascript:
+    docker:
+      - image: node:6
+    working_directory: /var/www/html
+    steps:
+      - run: npm --v
+      #- run:
+      #    name: chown permissions
+      #    command: sudo chown -R /var/www
+      - checkout
+      - restore_cache:
+          key: cakephp3-circleci-testci-npm-cache-{{ .Branch }}
+      - run: npm install
+      - save_cache:
+          key: cakephp3-circleci-testci-npm-cache-{{ .Branch }}
+          paths:
+            - "/home/ubuntu/.npm-cache"
+      - run: - node_modules/.bin/eslint webroot/js/
 workflows:
   version: 2
   build-all:
     jobs:
       - php_code_sniffer
       - php_test
+      - eslint_javascript
