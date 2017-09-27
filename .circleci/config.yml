@@ -1,46 +1,61 @@
-# PHP CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-php/ for more details
-#
 version: 2
 jobs:
-  build:
+  php_test:
     docker:
-      # specify the version you desire here
-    - image: php:5.6
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      #- image: circleci/mysql:9.4
-      environment:
-        APP_ENV: test
-    working_directory: ~/huynh-test
-
+      - image: tenkoma/php:7.1-apache-sample
+        environment:
+          DEBUG: true
+          DATABASE_URL: "mysql://root:password@127.0.0.1/cisample?encoding=utf8mb4&timezone=UTC&cacheMetadata=true"
+          DATABASE_TEST_URL: "mysql://root:password@127.0.0.1/cisample?encoding=utf8mb4&timezone=UTC&cacheMetadata=true"
+      - image: circleci/mysql:8.0
+        command: mysqld  --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+        environment:
+          MYSQL_DATABASE: cisample
+          MYSQL_ROOT_PASSWORD: password
+    working_directory: /var/www/html
     steps:
-      - run:
-          name: Install system packages
-          command: apt-get update && apt-get -y install git
-      - run:
-          name: Install PHP extensions
-          command: docker-php-ext-install pdo
-      - run:
-          name: Install PHP intl
-          command: "sudo apt-get install php5-intl"
+      - restore_cache:
+          key: cakephp3-circleci-example-{{ .Branch }}
       - checkout
+      - run: composer install --dev --no-interaction
+      - save_cache:
+          key: cakephp3-circleci-example-{{ .Branch }}
+          paths:
+            - "/home/ubuntu/.composer/cache"
       - run:
-          name: Install Composer
-          command: |
-            php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-            php -r "if (hash_file('SHA384', 'composer-setup.php') === trim(file_get_contents('https://composer.github.io/installer.sig'))) { echo 'Installer verified'; } else { echo 'Installer invalid'; unlink('composer-setup.php'); } echo PHP_EOL;"
-            php composer-setup.php
-            php -r "unlink('composer-setup.php');"
+          name: create test repot dir
+          command: mkdir -p $CIRCLE_TEST_REPORTS/phpunit
       - run:
-          name: Display PHP information
-          command: |
-            php -v
-            php composer.phar --version
+          name: Wait for MySQL DB
+          command: dockerize -wait tcp://localhost:3306 -timeout 1m
       - run:
-          name: Install project dependencies
-          command: php composer.phar install
-      # run tests!
-      - run: vendor/bin/phpunit
+          name: Initialize Database
+          command: bin/cake migrations migrate
+      - run: vendor/bin/phpunit --configuration phpunit.xml.dist --log-junit $CIRCLE_TEST_REPORTS/phpunit/junit.xml
+  php_code_sniffer:
+    docker:
+      - image: tenkoma/php:7.1-apache-sample
+        environment:
+          DEBUG: true
+    working_directory: /var/www/html
+    steps:
+      - restore_cache:
+          key: cakephp3-circleci-example-{{ .Branch }}
+      - checkout
+      - run: composer install --dev --no-interaction
+      - save_cache:
+          key: cakephp3-circleci-example-{{ .Branch }}
+          paths:
+            - "/home/ubuntu/.composer/cache"
+      - run:
+          name: php code sniffer
+          command: vendor/bin/phpcs --colors -p --encoding=utf-8 --extensions=php --standard=phpcs.xml.dist ./src ./tests
+
+workflows:
+  version: 2
+  build-all:
+    jobs:
+      - php_code_sniffer
+      - php_test:
+          requires:
+            - php_code_sniffer
