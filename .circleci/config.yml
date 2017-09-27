@@ -2,24 +2,24 @@ version: 2
 jobs:
   php_test:
     docker:
-      - image: tenkoma/php:7.1-apache-sample
+      - image: tenkoma/php:7.1-apache-project-name
         environment:
           DEBUG: true
-          DATABASE_URL: "mysql://root:password@127.0.0.1/cisample?encoding=utf8mb4&timezone=UTC&cacheMetadata=true"
-          DATABASE_TEST_URL: "mysql://root:password@127.0.0.1/cisample?encoding=utf8mb4&timezone=UTC&cacheMetadata=true"
+          DATABASE_URL: "mysql://root:password@127.0.0.1/project-name?encoding=utf8mb4&timezone=UTC&cacheMetadata=true"
+          DATABASE_TEST_URL: "mysql://root:password@127.0.0.1/project-name?encoding=utf8mb4&timezone=UTC&cacheMetadata=true"
       - image: circleci/mysql:8.0
         command: mysqld  --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
         environment:
-          MYSQL_DATABASE: cisample
+          MYSQL_DATABASE: project-name
           MYSQL_ROOT_PASSWORD: password
     working_directory: /var/www/html
     steps:
       - restore_cache:
-          key: cakephp3-circleci-example-{{ .Branch }}
+          key: cakephp3-circleci-project-name-{{ .Branch }}
       - checkout
       - run: composer install --dev --no-interaction
       - save_cache:
-          key: cakephp3-circleci-example-{{ .Branch }}
+          key: cakephp3-circleci-project-name-{{ .Branch }}
           paths:
             - "/home/ubuntu/.composer/cache"
       - run:
@@ -31,31 +31,30 @@ jobs:
       - run:
           name: Initialize Database
           command: bin/cake migrations migrate
-      - run: vendor/bin/phpunit --configuration phpunit.xml.dist --log-junit $CIRCLE_TEST_REPORTS/phpunit/junit.xml
+      - run: vendor/bin/phpunit
   php_code_sniffer:
     docker:
-      - image: tenkoma/php:7.1-apache-sample
+      - image: tenkoma/php:7.1-apache-project-name
         environment:
           DEBUG: true
     working_directory: /var/www/html
     steps:
       - restore_cache:
-          key: cakephp3-circleci-example-{{ .Branch }}
+          key: cakephp3-circleci-project-name-{{ .Branch }}
       - checkout
       - run: composer install --dev --no-interaction
       - save_cache:
-          key: cakephp3-circleci-example-{{ .Branch }}
+          key: cakephp3-circleci-project-name-{{ .Branch }}
           paths:
             - "/home/ubuntu/.composer/cache"
       - run:
           name: php code sniffer
-          command: vendor/bin/phpcs --colors -p --encoding=utf-8 --extensions=php --standard=phpcs.xml.dist ./src ./tests
+          command: vendor/bin/phpcs --standard=vendor/cakephp/cakephp-codesniffer/CakePHP/ruleset.xml src/ tests/ -n
+      
 
 workflows:
   version: 2
   build-all:
     jobs:
-      - php_code_sniffer
-      - php_test:
-          requires:
-            - php_code_sniffer
+      - vendor/bin/phpunit
+      - vendor/bin/phpcs --standard=vendor/cakephp/cakephp-codesniffer/CakePHP/ruleset.xml src/ tests/ -n
