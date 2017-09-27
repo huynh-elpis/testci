@@ -15,9 +15,6 @@ jobs:
     working_directory: /var/www/html
     steps:
       - run: apt-get update && apt-get -y install git unzip zlib1g-dev libicu-dev
-      #- run:
-      #    name: chmod permissions
-      #    command: sudo chown -R /var/www
       - checkout
       - run: docker-php-ext-install pdo pdo_mysql zip intl
       - run:
@@ -39,33 +36,14 @@ jobs:
           name: create test repot dir
           command: mkdir -p $CIRCLE_TEST_REPORTS/phpunit
       - run:
-          name: Wait for MySQL DB
-          command: dockerize -wait tcp://localhost:3306 -timeout 1m
-      - run:
           name: Initialize Database
           command: bin/cake migrations migrate
-      - run: vendor/bin/phpunit
-  php_code_sniffer:
-    docker:
-      - image: php:7.1-apache
-        environment:
-          DEBUG: true
-    working_directory: /var/www/html
-    steps:
-      - restore_cache:
-          key: cakephp3-circleci-testci-{{ .Branch }}
-      #- run:
-      #    name: chown permissions
-      #    command: sudo chown -R circleci:circleci /var/www
-      - checkout
-      - run: composer install --dev --no-interaction
-      - save_cache:
-          key: cakephp3-circleci-testci-{{ .Branch }}
-          paths:
-            - "/home/ubuntu/.composer/cache"
       - run:
           name: php code sniffer
           command: vendor/bin/phpcs --standard=vendor/cakephp/cakephp-codesniffer/CakePHP/ruleset.xml src/ tests/ -n
+      - run: 
+          name: php unit test
+          command: vendor/bin/phpunit
       
   eslint_javascript:
     docker:
@@ -73,9 +51,6 @@ jobs:
     working_directory: /var/www/html
     steps:
       - run: npm --v
-      #- run:
-      #    name: chown permissions
-      #    command: sudo chown -R /var/www
       - checkout
       - restore_cache:
           key: cakephp3-circleci-testci-npm-cache-{{ .Branch }}
@@ -90,6 +65,5 @@ workflows:
   version: 2
   build-all:
     jobs:
-      - php_code_sniffer
       - php_test
       - eslint_javascript
