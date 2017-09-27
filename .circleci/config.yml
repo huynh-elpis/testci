@@ -16,6 +16,9 @@ jobs:
     steps:
       - restore_cache:
           key: cakephp3-circleci-testci-{{ .Branch }}
+      - run:
+          name: chmod permissions
+          command: chmod -R /var/www/html
       - checkout
       - run: composer install --dev --no-interaction
       - save_cache:
@@ -41,6 +44,9 @@ jobs:
     steps:
       - restore_cache:
           key: cakephp3-circleci-testci-{{ .Branch }}
+      - run:
+          name: chmod permissions
+          command: chmod -R /var/www/html
       - checkout
       - run: composer install --dev --no-interaction
       - save_cache:
