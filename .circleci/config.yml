@@ -7,7 +7,7 @@ jobs:
   php_job:
     docker:
       # specify the version you desire here
-      - image: circleci/php:7.1-apache
+      - image: php:7.1-apache
         environment:
           DEBUG: true
       # Specify service dependencies here if necessary
@@ -15,7 +15,7 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/mysql:9.4
 
-    working_directory: ~/repo
+    working_directory: /var/www/html
 
     steps:
       - run: sudo apt-get update && apt-get -y install git unzip zlib1g-dev libicu-dev
