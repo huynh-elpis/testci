@@ -4,7 +4,7 @@
     <div class="message-time">
       {{ message.timestamp | time }}
     </div>
-    <div class="message-text">{{ message.text }}</div>
+    <div class="message-text">{{ message.text }},</div>
   </li>
 </template>
 
