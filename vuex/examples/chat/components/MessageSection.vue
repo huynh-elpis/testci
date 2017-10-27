@@ -46,7 +46,7 @@ export default {
           text,
           thread: this.thread
         })
-        e.target.value = ''
+        /*e.target.value = ''*/
       }
     }
   }

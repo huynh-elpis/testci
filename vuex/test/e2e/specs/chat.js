@@ -14,7 +14,7 @@ module.exports = {
       .waitFor(50) // fake api
       .assert.count('.message-list-item', 3)
       .assert.containsText('.message-list-item:nth-child(3)', 'hi')
-      .expect.element('.message-composer').text.to.contain('')
+      .assert.containsText('.message-composer', '')
       .click('.thread-list-item:nth-child(2)')
       .assert.containsText('.thread-list-item.active', 'Dave and Bill')
       .assert.containsText('.message-thread-heading', 'Dave and Bill')
