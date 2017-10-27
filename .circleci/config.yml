@@ -41,7 +41,8 @@ jobs:
       
   vuex_job:
     docker:
-      - image: node:6
+      #- image: node:6
+      - image: karthikiyengar/node-nightwatch:lastest
         environment:
           BABEL_ENV: development
     working_directory: /var/www/html
