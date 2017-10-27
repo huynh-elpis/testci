@@ -6,6 +6,7 @@
 /logs/*
 /tmp/*
 /vendor/*
+/vuex/node_modules/*
 
 # OS generated files #
 ######################
