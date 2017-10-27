@@ -45,7 +45,7 @@ jobs:
       - image: karthikiyengar/node-nightwatch:0.0.1
         environment:
           BABEL_ENV: development
-    working_directory: /var/www/html
+    working_directory: ~/repo
     steps:
       - run: npm --v
       - checkout
@@ -55,7 +55,7 @@ jobs:
       - save_cache:
           key: cakephp3-circleci-testci-npm-cache-{{ .Branch }}
           paths:
-            - "/home/ubuntu/.npm-cache"
+            - "node_modules"
       - run: cd vuex && npm run lint && npm run test:e2e
 workflows:
   version: 2
