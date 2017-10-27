@@ -14,24 +14,17 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/mysql:9.4
 
-    working_directory: ~/repo
+    working_directory: /var/www/html
 
     steps:
       - checkout
-
-      # Download and cache dependencies
-       - restore_cache:
-          key: v1-testci-cache-{{ .Branch }}
-          # fallback to using the latest cache if no exact match is found
-          # - v1-dependencies-
-
-       - run: composer install -n --prefer-dist
-
-       - save_cache:
-           paths:
-             - ./vendor
-           key: v1-testci-cache-{{ .Branch }}
-        
+      - restore_cache:
+          key: cakephp3-circleci-testci-{{ .Branch }}
+      - run: composer install -n --prefer-dist
+      - save_cache:
+          key: cakephp3-circleci-testci-{{ .Branch }}
+          paths:
+            - "/home/ubuntu/.composer/cache"
       # run tests!
       # - run: phpunit
 workflows:
