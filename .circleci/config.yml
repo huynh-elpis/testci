@@ -55,7 +55,7 @@ jobs:
           key: cakephp3-circleci-testci-npm-cache-{{ .Branch }}
           paths:
             - "/home/ubuntu/.npm-cache"
-      - run: cd vuex && npm run lint npm run test:e2e
+      - run: cd vuex && npm run lint && npm run test:e2e
 workflows:
   version: 2
   build-all:
