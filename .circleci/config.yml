@@ -38,8 +38,28 @@ jobs:
             - "/home/ubuntu/.composer/cache"
       # run tests!
       - run: vendor/bin/phpunit
+      
+  vuex_job:
+    docker:
+      - image: node:5
+        environment:
+          BABEL_ENV: development
+    working_directory: /var/www/html
+    steps:
+      - run: npm --v
+      - run: cd vuex
+      - checkout
+      - restore_cache:
+          key: cakephp3-circleci-testci-npm-cache-{{ .Branch }}
+      - run: npm install
+      - save_cache:
+          key: cakephp3-circleci-testci-npm-cache-{{ .Branch }}
+          paths:
+            - "/home/ubuntu/.npm-cache"
+      - run: npm run test
 workflows:
   version: 2
   build-all:
     jobs:
       - php_job
+      - vuex_job
